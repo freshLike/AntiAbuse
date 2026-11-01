@@ -52,7 +52,7 @@
 | `/antisavedhotbar reload` | `/ash reload` | Перезагрузить конфигурацию плагина | `antisavedhotbar.reload` |
 | `/antisavedhotbar scan` | `/ash scan` | Принудительно просканировать свой инвентарь | `antisavedhotbar.reload` |
 
-### Права доступа (Permissions):
+### Права доступа (LuckPerms):
 | Право | По умолчанию | Описание |
 |---|---|---|
 | `antisavedhotbar.bypass` | `op` | Полный обход всех проверок плагина на нелегальные предметы |
