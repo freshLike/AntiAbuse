@@ -1,45 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.google.common.collect.Multimap
- *  org.bukkit.Bukkit
- *  org.bukkit.ChatColor
- *  org.bukkit.GameMode
- *  org.bukkit.Material
- *  org.bukkit.attribute.AttributeModifier
- *  org.bukkit.block.ShulkerBox
- *  org.bukkit.command.Command
- *  org.bukkit.command.CommandSender
- *  org.bukkit.configuration.file.FileConfiguration
- *  org.bukkit.enchantments.Enchantment
- *  org.bukkit.entity.HumanEntity
- *  org.bukkit.entity.LivingEntity
- *  org.bukkit.entity.Player
- *  org.bukkit.event.EventHandler
- *  org.bukkit.event.EventPriority
- *  org.bukkit.event.Listener
- *  org.bukkit.event.block.BlockPlaceEvent
- *  org.bukkit.event.entity.EntityPickupItemEvent
- *  org.bukkit.event.inventory.InventoryClickEvent
- *  org.bukkit.event.inventory.InventoryCreativeEvent
- *  org.bukkit.event.inventory.InventoryDragEvent
- *  org.bukkit.event.player.PlayerDropItemEvent
- *  org.bukkit.event.player.PlayerGameModeChangeEvent
- *  org.bukkit.event.player.PlayerInteractEvent
- *  org.bukkit.event.player.PlayerJoinEvent
- *  org.bukkit.event.player.PlayerSwapHandItemsEvent
- *  org.bukkit.inventory.Inventory
- *  org.bukkit.inventory.ItemStack
- *  org.bukkit.inventory.meta.BlockStateMeta
- *  org.bukkit.inventory.meta.EnchantmentStorageMeta
- *  org.bukkit.inventory.meta.ItemMeta
- *  org.bukkit.inventory.meta.PotionMeta
- *  org.bukkit.plugin.Plugin
- *  org.bukkit.plugin.java.JavaPlugin
- *  org.bukkit.potion.PotionEffect
- *  org.jetbrains.annotations.NotNull
- */
 package me.maksde.antisavedhotbar;
 
 import com.google.common.collect.Multimap;
@@ -84,9 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 
-public final class AntiSavedHotbarAbuse
-extends JavaPlugin
-implements Listener {
+public final class AntiSavedHotbarAbuse extends JavaPlugin implements Listener {
     private String bypassPermission;
     private boolean scanOnJoin;
     private boolean scanOnGamemodeChange;
@@ -117,47 +73,51 @@ implements Listener {
     private String commandBlockMessage;
     private String totemMessage;
 
+    @Override
     public void onEnable() {
         this.saveDefaultConfig();
         this.loadSettings();
-        Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents(this, this);
         this.startPeriodicScanner();
-        this.getLogger().info("AntiSavedHotbarAbuse enabled");
+        this.getLogger().info("AntiSavedHotbarAbuse успешно включен!");
     }
 
+    @Override
     public void onDisable() {
         if (this.scanTaskId != -1) {
             Bukkit.getScheduler().cancelTask(this.scanTaskId);
             this.scanTaskId = -1;
         }
+        this.getLogger().info("AntiSavedHotbarAbuse выключен.");
     }
 
+    @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!command.getName().equalsIgnoreCase("antisavedhotbar")) {
             return false;
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("antisavedhotbar.reload")) {
-                sender.sendMessage(String.valueOf(ChatColor.RED) + "\u041d\u0435\u043c\u0430\u0454 \u043f\u0440\u0430\u0432: antisavedhotbar.reload");
+                sender.sendMessage(ChatColor.RED + "Недостаточно прав: antisavedhotbar.reload");
                 return true;
             }
             this.reloadConfig();
             this.loadSettings();
             this.startPeriodicScanner();
-            sender.sendMessage(String.valueOf(ChatColor.GREEN) + "AntiSavedHotbarAbuse config reloaded.");
+            sender.sendMessage(ChatColor.GREEN + "Конфигурация AntiSavedHotbarAbuse успешно перезагружена.");
             return true;
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("scan") && sender instanceof Player) {
-            Player player = (Player)sender;
+            Player player = (Player) sender;
             if (!sender.hasPermission("antisavedhotbar.reload")) {
-                sender.sendMessage(String.valueOf(ChatColor.RED) + "\u041d\u0435\u043c\u0430\u0454 \u043f\u0440\u0430\u0432: antisavedhotbar.reload");
+                sender.sendMessage(ChatColor.RED + "Недостаточно прав: antisavedhotbar.reload");
                 return true;
             }
             this.scanPlayer(player);
-            sender.sendMessage(String.valueOf(ChatColor.GREEN) + "Inventory scanned.");
+            sender.sendMessage(ChatColor.GREEN + "Инвентарь игрока успешно проверен.");
             return true;
         }
-        sender.sendMessage(String.valueOf(ChatColor.YELLOW) + "\u041a\u043e\u043c\u0430\u043d\u0434\u0438: /" + label + " reload, /" + label + " scan");
+        sender.sendMessage(ChatColor.YELLOW + "Использование: /" + label + " reload — перезагрузить конфиг, /" + label + " scan — сканировать свой инвентарь");
         return true;
     }
 
@@ -184,20 +144,20 @@ implements Listener {
         this.checkShulkerContents = c.getBoolean("check-shulker-contents", true);
         this.logRemovals = c.getBoolean("log-removals", true);
         this.sendMessage = c.getBoolean("send-message", true);
-        this.message = ChatColor.translateAlternateColorCodes((char)'&', (String)c.getString("message", "&cIllegal item blocked."));
+        this.message = ChatColor.translateAlternateColorCodes('&', c.getString("message", "&cЭтот предмет заблокирован: нелегальные чары, эффекты зелий или атрибуты!"));
         this.blockCommandBlockPlace = c.getBoolean("block-command-block-place", true);
         this.blockCommandBlockInteract = c.getBoolean("block-command-block-interact", true);
         this.blockTotemStacking = c.getBoolean("block-totem-stacking", true);
-        this.commandBlockMessage = ChatColor.translateAlternateColorCodes((char)'&', (String)c.getString("command-block-message", "&c\u041a\u043e\u043c\u0430\u043d\u0434\u043d\u0456 \u0431\u043b\u043e\u043a\u0438 \u0437\u0430\u0431\u043e\u0440\u043e\u043d\u0435\u043d\u043e \u0432\u0438\u043a\u043e\u0440\u0438\u0441\u0442\u043e\u0432\u0443\u0432\u0430\u0442\u0438."));
-        this.totemMessage = ChatColor.translateAlternateColorCodes((char)'&', (String)c.getString("totem-message", "&c\u0422\u043e\u0442\u0435\u043c\u0438 \u043d\u0435 \u043c\u043e\u0436\u043d\u0430 \u0441\u0442\u0430\u043a\u0430\u0442\u0438. \u0423 \u0441\u0442\u0430\u043ay \u0437\u0430\u043b\u0438\u0448\u0435\u043d\u043e 1 \u0442\u043e\u0442\u0435\u043c."));
-        this.blockedMaterials = new HashSet<Material>();
+        this.commandBlockMessage = ChatColor.translateAlternateColorCodes('&', c.getString("command-block-message", "&cКомандные блоки запрещено использовать!"));
+        this.totemMessage = ChatColor.translateAlternateColorCodes('&', c.getString("totem-message", "&cТотемы нельзя стакать! В слоте оставлен только 1 тотем."));
+        this.blockedMaterials = new HashSet<>();
         for (String name : c.getStringList("blocked-materials")) {
-            Material mat = Material.matchMaterial((String)name);
+            Material mat = Material.matchMaterial(name);
             if (mat != null) {
                 this.blockedMaterials.add(mat);
                 continue;
             }
-            this.getLogger().warning("Unknown material in config: " + name);
+            this.getLogger().warning("Неизвестный материал в конфигурации: " + name);
         }
     }
 
@@ -209,14 +169,14 @@ implements Listener {
         if (this.periodicScanIntervalTicks <= 0) {
             return;
         }
-        this.scanTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)this, () -> {
+        this.scanTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 this.scanPlayer(player);
             }
-        }, (long)this.periodicScanIntervalTicks, (long)this.periodicScanIntervalTicks);
+        }, (long) this.periodicScanIntervalTicks, (long) this.periodicScanIntervalTicks);
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onCreative(InventoryCreativeEvent event) {
         if (!this.blockCreativeIllegalItems) {
             return;
@@ -225,7 +185,7 @@ implements Listener {
         if (!(humanEntity instanceof Player)) {
             return;
         }
-        Player player = (Player)humanEntity;
+        Player player = (Player) humanEntity;
         if (this.isBypassed(player)) {
             return;
         }
@@ -237,7 +197,7 @@ implements Listener {
             if (this.sendMessage) {
                 player.sendMessage(this.totemMessage);
             }
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
         }
         if (this.isIllegal(cursor) || this.isIllegal(current)) {
             event.setCancelled(true);
@@ -247,7 +207,7 @@ implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!this.blockInventoryMoves) {
             return;
@@ -256,7 +216,7 @@ implements Listener {
         if (!(humanEntity instanceof Player)) {
             return;
         }
-        Player player = (Player)humanEntity;
+        Player player = (Player) humanEntity;
         if (this.isBypassed(player)) {
             return;
         }
@@ -266,20 +226,20 @@ implements Listener {
             if (this.sendMessage) {
                 player.sendMessage(this.totemMessage);
             }
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
         }
         if (this.isIllegal(event.getCurrentItem()) || this.isIllegal(event.getCursor())) {
             event.setCancelled(true);
             event.setCurrentItem(null);
             event.setCursor(null);
             this.warn(player, null);
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
             return;
         }
-        Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+        Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!this.blockInventoryMoves) {
             return;
@@ -288,7 +248,7 @@ implements Listener {
         if (!(humanEntity instanceof Player)) {
             return;
         }
-        Player player = (Player)humanEntity;
+        Player player = (Player) humanEntity;
         if (this.isBypassed(player)) {
             return;
         }
@@ -296,7 +256,7 @@ implements Listener {
             event.setCancelled(true);
             event.setCursor(null);
             this.warn(player, event.getOldCursor());
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
             return;
         }
         for (ItemStack item : event.getNewItems().values()) {
@@ -304,12 +264,12 @@ implements Listener {
             event.setCancelled(true);
             event.setCursor(null);
             this.warn(player, item);
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
             return;
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent event) {
         if (!this.blockDropsAndPickups) {
             return;
@@ -327,7 +287,7 @@ implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPickup(EntityPickupItemEvent event) {
         if (!this.blockDropsAndPickups) {
             return;
@@ -336,7 +296,7 @@ implements Listener {
         if (!(livingEntity instanceof Player)) {
             return;
         }
-        Player player = (Player)livingEntity;
+        Player player = (Player) livingEntity;
         if (this.isBypassed(player)) {
             return;
         }
@@ -348,11 +308,11 @@ implements Listener {
             event.setCancelled(true);
             event.getItem().remove();
             this.warn(player, item);
-            Bukkit.getScheduler().runTask((Plugin)this, () -> this.scanPlayer(player));
+            Bukkit.getScheduler().runTask(this, () -> this.scanPlayer(player));
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSwap(PlayerSwapHandItemsEvent event) {
         if (!this.blockInventoryMoves) {
             return;
@@ -368,7 +328,7 @@ implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (this.isBypassed(player)) {
@@ -378,7 +338,7 @@ implements Listener {
             event.setCancelled(true);
             player.sendMessage(this.commandBlockMessage);
             if (this.logRemovals) {
-                this.getLogger().warning("Blocked command block interaction from " + player.getName());
+                this.getLogger().warning("Заблокировано взаимодействие с командным блоком от " + player.getName());
             }
             return;
         }
@@ -390,7 +350,7 @@ implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         if (this.isBypassed(player)) {
@@ -402,7 +362,7 @@ implements Listener {
             this.scanPlayer(player);
             player.sendMessage(this.commandBlockMessage);
             if (this.logRemovals) {
-                this.getLogger().warning("Blocked command block placement from " + player.getName());
+                this.getLogger().warning("Заблокирована установка командного блока от " + player.getName());
             }
             return;
         }
@@ -413,22 +373,22 @@ implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         if (!this.scanOnJoin) {
             return;
         }
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.scanPlayer(player), 20L);
+        Bukkit.getScheduler().runTaskLater(this, () -> this.scanPlayer(player), 20L);
     }
 
-    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onGamemode(PlayerGameModeChangeEvent event) {
         if (!this.scanOnGamemodeChange) {
             return;
         }
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.scanPlayer(player), 2L);
+        Bukkit.getScheduler().runTaskLater(this, () -> this.scanPlayer(player), 2L);
     }
 
     private void scanPlayer(Player player) {
@@ -438,7 +398,7 @@ implements Listener {
         if (this.onlyScanCreative && player.getGameMode() != GameMode.CREATIVE) {
             return;
         }
-        int removed = this.cleanInventory((Inventory)player.getInventory());
+        int removed = this.cleanInventory(player.getInventory());
         if (this.scanEnderChest) {
             removed += this.cleanInventory(player.getEnderChest());
         }
@@ -446,7 +406,7 @@ implements Listener {
             player.sendMessage(this.message);
         }
         if (removed > 0 && this.logRemovals) {
-            this.getLogger().warning("Removed " + removed + " illegal item stack(s) from " + player.getName());
+            this.getLogger().warning("Удалено " + removed + " нелегальных стаков предметов у игрока " + player.getName());
         }
     }
 
@@ -476,8 +436,8 @@ implements Listener {
             player.sendMessage(this.message);
         }
         if (this.logRemovals) {
-            String itemName = item == null ? "unknown" : item.getType().name();
-            this.getLogger().warning("Blocked illegal creative item from " + player.getName() + ": " + itemName);
+            String itemName = item == null ? "неизвестно" : item.getType().name();
+            this.getLogger().warning("Заблокирован нелегальный предмет из креатива у " + player.getName() + ": " + itemName);
         }
     }
 
@@ -582,11 +542,6 @@ implements Listener {
         return false;
     }
 
-    // Operation-aware check. Flat ADD_NUMBER modifiers are compared against
-    // maxAttributeAmount, but ADD_SCALAR / MULTIPLY_SCALAR_1 modifiers are
-    // percentage-based (e.g. amount = 10.0 means "+1000%"), so a small raw
-    // number there can still mean a massive real-world boost (speed, etc).
-    // Those are compared against maxAttributePercent instead.
     private boolean isBadAttributeModifier(AttributeModifier modifier) {
         double amount = Math.abs(modifier.getAmount());
         AttributeModifier.Operation operation = modifier.getOperation();

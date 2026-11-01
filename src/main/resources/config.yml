@@ -1,67 +1,122 @@
-# AntiSavedHotbarAbuse
-# Blocks illegal items brought from Creative Saved Hotbars or already present in inventories.
+# ==================================================================== #
+#                   AntiSavedHotbarAbuse Configuration                 #
+#          Защита от нелегальных предметов из сохраненного хотбара       #
+# ==================================================================== #
 
+# Право для обхода всех проверок плагина (по умолчанию выдано OP)
 bypass-permission: "antisavedhotbar.bypass"
 
+# Сканировать инвентарь игрока при входе на сервер
 scan-on-join: true
+
+# Сканировать инвентарь при смене игрового режима (например, при переходе из Creative в Survival)
 scan-on-gamemode-change: true
+
+# Проверять и очищать личный сундук Края (Ender Chest) игрока
 scan-ender-chest: true
+
+# Проверять только игроков в режиме Креатив (false = проверять всех игроков на сервере)
 only-scan-creative: false
 
-# Blocks illegal items as soon as player tries to put/take them in creative.
+# Блокировать нелегальные предметы сразу при попытке взять/положить их в инвентаре Креатива
 block-creative-illegal-items: true
 
-# Also blocks moving/clicking these items in inventories, dropping, picking up, placing and using them.
+# Блокировать перемещение, клики, быстрый перенос нелегальных предметов в любых инвентарях
 block-inventory-moves: true
+
+# Блокировать выбрасывание (Q) и подбор с земли нелегальных предметов
 block-drops-and-pickups: true
 
-# Extra safety: scan all online players every N ticks. 100 ticks = 5 seconds.
-# Set 0 to disable periodic scan.
+# Фоновое периодическое сканирование всех онлайн-игроков.
+# Указывается в тиках: 20 тиков = 1 секунда, 100 тиков = 5 секунд.
+# Установите 0, чтобы отключить фоновое сканирование.
 periodic-scan-interval-ticks: 100
 
-# Main rule: any enchant above this level is illegal.
-# Example: 50 allows Sharpness 50, but blocks Sharpness 51/255.
+# -------------------------------------------------------------------- #
+#                      Настройки зачарований (Enchants)                #
+# -------------------------------------------------------------------- #
+
+# Максимально допустимый уровень зачарования.
+# Пример: при значении 50 разрешены чары до 50 уровня включительно,
+# но предметы с чарами 51, 255, 32767 будут немедленно удалены.
 max-enchant-level: 50
 
-# If true, also blocks Protection 5, Sharpness 6, etc.
-# For your case leave false, because you asked to block only above 50.
+# Блокировать ли чары выше стандартного ванильного максимума (например, Острота 6, Защита 5).
+# Оставьте false, если на вашем сервере разрешены кастомные зачарования до уровня 50.
 block-above-vanilla-max: false
 
-# Potion checks: blocks potion.potency.254/255 and extremely long or infinite effects.
+# -------------------------------------------------------------------- #
+#                          Настройки зелий (Potions)                   #
+# -------------------------------------------------------------------- #
+
+# Проверять ли зелья на читерские эффекты (например, эффект 255 уровня или вечные зелья)
 check-potions: true
+
+# Максимальный уровень эффекта зелья (отображаемый уровень, т.е. amplifier + 1)
 max-potion-amplifier: 50
+
+# Максимальная длительность эффекта зелья в секундах (9600 сек = 160 минут)
 max-potion-duration-seconds: 9600
+
+# Блокировать ли зелья с бесконечной длительностью эффектов
 block-infinite-potion-effects: true
 
-# Attribute checks: blocks items/potions with huge modifiers like +765 Attack Damage.
+# -------------------------------------------------------------------- #
+#                       Настройки атрибутов (Attributes)               #
+# -------------------------------------------------------------------- #
+
+# Проверять модификаторы атрибутов у предметов (например, +10000 к урону, скорости, здоровью)
 check-attributes: true
+
+# Максимальное значение для числовых модификаторов (ADD_NUMBER)
 max-attribute-amount: 50.0
 
-# For percentage-based modifiers (ADD_SCALAR / MULTIPLY_SCALAR_1, used e.g. for
-# "+1000% Швидкість" speed boosts). Amount for these operations is a fraction
-# (10.0 = +1000%), so it's checked separately from max-attribute-amount above,
-# which only makes sense for flat ADD_NUMBER modifiers.
+# Максимальный процент для процентных модификаторов (ADD_SCALAR / MULTIPLY_SCALAR_1)
+# 100.0 означает максимум +100% (увеличение в 2 раза)
 max-attribute-percent: 100.0
 
-# Recursively checks items inside shulker boxes.
+# -------------------------------------------------------------------- #
+#                    Шалкеры и запрещенные материалы                   #
+# -------------------------------------------------------------------- #
+
+# Рекурсивно сканировать содержимое шалкеровых ящиков внутри инвентарей
 check-shulker-contents: true
 
-# Materials to delete completely.
-# Command blocks are deleted from inventories and from shulkers.
+# Список материалов, которые полностью запрещены и немедленно изымаются
+# (из инвентаря, сундука Края и шалкеров)
 blocked-materials:
   - COMMAND_BLOCK
   - CHAIN_COMMAND_BLOCK
   - REPEATING_COMMAND_BLOCK
 
-# Extra protection: also blocks placing/opening command blocks before the scanner removes them.
+# Дополнительная защита: блокировать установку командных блоков
 block-command-block-place: true
+
+# Дополнительная защита: блокировать клик / открытие интерфейса командных блоков
 block-command-block-interact: true
-command-block-message: "&cКомандные блоки запрещено использовать."
 
-# Totem stacks are reduced to 1 item per slot. Extra totems in that stack are removed.
+# Сообщение при попытке взаимодействовать с командным блоком
+command-block-message: "&cКомандные блоки запрещено использовать!"
+
+# -------------------------------------------------------------------- #
+#                       Защита от стакания тотемов                     #
+# -------------------------------------------------------------------- #
+
+# Уменьшать стаки тотемов бессмертия до 1 шт. в слоте (лишние тотемы из стака удаляются)
 block-totem-stacking: true
-totem-message: "&cТотемы нельзя стакать. У стакy оставлено 1 тотем."
 
+# Сообщение при попытке настакать тотемы
+totem-message: "&cТотемы нельзя стакать! В слоте оставлен только 1 тотем."
+
+# -------------------------------------------------------------------- #
+#                       Логирование и оповещения                       #
+# -------------------------------------------------------------------- #
+
+# Выводить информацию об удаленных и заблокированных предметах в консоль сервера
 log-removals: true
+
+# Отправлять ли игроку сообщение в чат при изъятии нелегального предмета
 send-message: true
-message: "&cЭтот предмет заблокирован: уровень чар/зелий/атрибутов очень высокий."
+
+# Сообщение игроку при обнаружении нелегального предмета
+message: "&cЭтот предмет заблокирован: нелегальные чары, эффекты зелий или атрибуты!"

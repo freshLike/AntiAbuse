@@ -2,16 +2,17 @@ name: AntiSavedHotbarAbuse
 version: 1.0.9
 main: me.maksde.antisavedhotbar.AntiSavedHotbarAbuse
 api-version: '1.21'
-author: ChatGPT
+author: freshLike
+description: Защита сервера от нелегальных предметов из Saved Hotbar
 commands:
   antisavedhotbar:
-    description: AntiSavedHotbarAbuse commands
-    usage: /antisavedhotbar reload
+    description: Основная команда управления плагином AntiSavedHotbarAbuse
+    usage: /antisavedhotbar [reload|scan]
     aliases: [ash]
 permissions:
   antisavedhotbar.bypass:
-    description: Allows bypassing illegal item checks
+    description: Разрешает обход всех проверок на нелегальные предметы
     default: op
   antisavedhotbar.reload:
-    description: Allows reloading AntiSavedHotbarAbuse config
+    description: Разрешает перезагрузку конфигурации и запуск ручного сканирования
     default: op
