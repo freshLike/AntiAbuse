@@ -1,0 +1,67 @@
+# AntiSavedHotbarAbuse
+# Blocks illegal items brought from Creative Saved Hotbars or already present in inventories.
+
+bypass-permission: "antisavedhotbar.bypass"
+
+scan-on-join: true
+scan-on-gamemode-change: true
+scan-ender-chest: true
+only-scan-creative: false
+
+# Blocks illegal items as soon as player tries to put/take them in creative.
+block-creative-illegal-items: true
+
+# Also blocks moving/clicking these items in inventories, dropping, picking up, placing and using them.
+block-inventory-moves: true
+block-drops-and-pickups: true
+
+# Extra safety: scan all online players every N ticks. 100 ticks = 5 seconds.
+# Set 0 to disable periodic scan.
+periodic-scan-interval-ticks: 100
+
+# Main rule: any enchant above this level is illegal.
+# Example: 50 allows Sharpness 50, but blocks Sharpness 51/255.
+max-enchant-level: 50
+
+# If true, also blocks Protection 5, Sharpness 6, etc.
+# For your case leave false, because you asked to block only above 50.
+block-above-vanilla-max: false
+
+# Potion checks: blocks potion.potency.254/255 and extremely long or infinite effects.
+check-potions: true
+max-potion-amplifier: 50
+max-potion-duration-seconds: 9600
+block-infinite-potion-effects: true
+
+# Attribute checks: blocks items/potions with huge modifiers like +765 Attack Damage.
+check-attributes: true
+max-attribute-amount: 50.0
+
+# For percentage-based modifiers (ADD_SCALAR / MULTIPLY_SCALAR_1, used e.g. for
+# "+1000% Швидкість" speed boosts). Amount for these operations is a fraction
+# (10.0 = +1000%), so it's checked separately from max-attribute-amount above,
+# which only makes sense for flat ADD_NUMBER modifiers.
+max-attribute-percent: 100.0
+
+# Recursively checks items inside shulker boxes.
+check-shulker-contents: true
+
+# Materials to delete completely.
+# Command blocks are deleted from inventories and from shulkers.
+blocked-materials:
+  - COMMAND_BLOCK
+  - CHAIN_COMMAND_BLOCK
+  - REPEATING_COMMAND_BLOCK
+
+# Extra protection: also blocks placing/opening command blocks before the scanner removes them.
+block-command-block-place: true
+block-command-block-interact: true
+command-block-message: "&cКомандные блоки запрещено использовать."
+
+# Totem stacks are reduced to 1 item per slot. Extra totems in that stack are removed.
+block-totem-stacking: true
+totem-message: "&cТотемы нельзя стакать. У стакy оставлено 1 тотем."
+
+log-removals: true
+send-message: true
+message: "&cЭтот предмет заблокирован: уровень чар/зелий/атрибутов очень высокий."

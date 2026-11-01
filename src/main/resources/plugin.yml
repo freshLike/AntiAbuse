@@ -1,0 +1,17 @@
+name: AntiSavedHotbarAbuse
+version: 1.0.9
+main: me.maksde.antisavedhotbar.AntiSavedHotbarAbuse
+api-version: '1.21'
+author: ChatGPT
+commands:
+  antisavedhotbar:
+    description: AntiSavedHotbarAbuse commands
+    usage: /antisavedhotbar reload
+    aliases: [ash]
+permissions:
+  antisavedhotbar.bypass:
+    description: Allows bypassing illegal item checks
+    default: op
+  antisavedhotbar.reload:
+    description: Allows reloading AntiSavedHotbarAbuse config
+    default: op
